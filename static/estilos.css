@@ -2,3 +2,7 @@ body {
     background-color: rgb(32, 71, 107);
     text-align: center;
 }
+
+.bg-body-tertiary {
+    background-color: brown;
+}
