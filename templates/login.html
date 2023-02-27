@@ -64,15 +64,24 @@
 
                 <h2 class="fw-bold text-center py-5">Bienvenido</h2>
                 <!-- Login-->
-                <form action="#">
+                <form action="/verificar" method="post">
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electronico</label>
-                        <input type="email" class="form-control" name="email">
+                        <input type="email" class="form-control" name="email" required>
                     </div> 
                     <div class="mb-4">
                         <label for="contraseña" class="form-label">Contraseña</label>
-                        <input type="contraseña" class="form-control" name="contraseña">
+                        <input type="contraseña" class="form-control" name="contraseña" required>
                     </div>
+
+                    
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                    </div>
+                    {% endif %}
+
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                     </div>
