@@ -31,13 +31,17 @@ def login():
 def indexR():
     return render_template("index.html")
 
+@app.route("/registro.html")
+def registro():
+    return render_template("registro.html")
+
 
 @app.route('/verificar', methods=['GET', 'POST'])
 def login2():
     if request.method == 'POST':
         # Recupera los datos ingresados por el usuario en el input
         email = request.form['email']
-        password = request.form['contraseña']
+        password = request.form['password']
         # Establecer la conexión a la base de datos
         db = mysql.connector.connect(
             host="localhost",

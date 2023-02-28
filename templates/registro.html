@@ -62,16 +62,25 @@
                     <img src="/static/images/logo.png" width="48" alt="">
                 </div>
 
-                <h2 class="fw-bold text-center py-5">Bienvenido</h2>
+                <h2 class="fw-bold text-center py-5">Registro</h2>
                 <!-- Login-->
                 <form action="/verificar" method="post">
+                    <!--Cambiar el type para uno mas adecuado que no sea email-->
+                    <div class="mb-4">
+                        <label for="name" class="form-label">Nombres</label>
+                        <input type="text" class="form-control" name="name" required pattern="^[a-zA-Z\s]*$">
+                    </div> 
+                    <div class="mb-4">
+                        <label for="lastname" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" name="lastname" required pattern="^[a-zA-Z\s]*$">
+                    </div> 
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electronico</label>
                         <input type="email" class="form-control" name="email" required>
                     </div> 
                     <div class="mb-4">
-                        <label for="contraseña" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="contraseña" required>
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="password" required>
                     </div>
 
                     
@@ -89,7 +98,7 @@
                         <span><a href="#">Recuperar contraseña</a></span>
                     </div>
                     <div class="my-3">
-                      <span><a href="/registro.html">Registrarse</a></span>
+                      <span><a href="#">Registrarse</a></span>
                   </div>
                 </form>
             </div>
