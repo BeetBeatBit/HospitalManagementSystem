@@ -35,9 +35,49 @@ def indexR():
 def registro():
     return render_template("registro.html")
 
+@app.route('/registerBD', methods=['GET', 'POST'])
+def registerBD():
+    if request.method == 'POST':
+        # Recupera los datos ingresados por el usuario en el input
+        email = request.form['email']
+        password = request.form['password']
+        fullname = request.form['name']
 
-@app.route('/verificar', methods=['GET', 'POST'])
-def login2():
+        # Establecer la conexión a la base de datos
+        db = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="Daniel98@",
+            database="clinica"
+        )
+        # Crear una consulta SQL para seleccionar los valores de correo y contraseña desde la tabla de usuarios
+        sql = "INSERT INTO users (fullname, username, password) VALUES (%s, %s, %s);"
+        values = (fullname, email, password)
+        
+        # Ejecutar la consulta SQL y obtener los resultados
+        cursor = db.cursor()
+        cursor.execute(sql, values)
+        result = cursor.fetchone()
+        # Comparar los valores de correo y contraseña
+        if result and result[0] == email and result[1] == password:
+            # Credenciales válidas, redirigir al usuario a la página de inicio de sesión
+            print("Si encontre")
+            
+            error = 'Credenciales válidas. Bienvenido.'
+            return render_template('/login.html', error=error)
+            
+            #return redirect(url_for('inicio'))
+        else:
+            # Credenciales no válidas, mostrar un mensaje de error
+            print("NO encontre")
+            
+            error = 'Credenciales no válidas. Intente de nuevo.'
+            return render_template('/login.html', error=error)
+    else:
+        return render_template('/login.html', error=error)
+
+@app.route('/loginBD', methods=['GET', 'POST'])
+def loginBD():
     if request.method == 'POST':
         # Recupera los datos ingresados por el usuario en el input
         email = request.form['email']
@@ -76,4 +116,4 @@ def login2():
         return render_template('/login.html', error=error)
 
 if __name__ == "__main__":
-    app.run(port=4000, host="0.0.0.0")
+    app.run(debug = True, port=4000, host="0.0.0.0")
