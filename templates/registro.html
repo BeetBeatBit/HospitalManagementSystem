@@ -68,11 +68,11 @@
                     <!--Cambiar el type para uno mas adecuado que no sea email-->
                     <div class="mb-4">
                         <label for="name" class="form-label">Nombres</label>
-                        <input type="text" class="form-control" name="name" required pattern="^[a-zA-Z\s]*$" maxlength="20">
+                        <input type="text" class="form-control" name="name" required pattern="^[a-zA-Z\s]*$" maxlength="40">
                     </div> 
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electronico</label>
-                        <input type="email" class="form-control" name="email" required maxlength="20">
+                        <input type="email" class="form-control" name="email" required maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
                     </div> 
                     <div class="mb-4">
                         <label for="password" class="form-label">Contraseña</label>
@@ -80,21 +80,26 @@
                     </div>
 
                     
-                    {% if error %}
+                    {% if reg_error_msg %}
                     <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    {{ reg_error_msg }}
                     </div>
                     {% endif %}
 
+                    {% if reg_success_msg %}
+                    <div class="alert alert-success" role="alert">
+                    {{ reg_success_msg }}
+                    </div>
+                    {% endif %}
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                        <button type="submit" class="btn btn-primary">Registrarse</button>
                     </div>
                     <div class="my-3">
                         <span><a href="#">Recuperar contraseña</a></span>
                     </div>
                     <div class="my-3">
-                      <span><a href="#">Registrarse</a></span>
+                      <span><a href="/login.html">Iniciar Sesión</a></span>
                   </div>
                 </form>
             </div>

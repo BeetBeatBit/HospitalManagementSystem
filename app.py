@@ -39,42 +39,38 @@ def registro():
 def registerBD():
     if request.method == 'POST':
         # Recupera los datos ingresados por el usuario en el input
+        fullname = request.form['name']
         email = request.form['email']
         password = request.form['password']
-        fullname = request.form['name']
 
         # Establecer la conexión a la base de datos
         db = mysql.connector.connect(
             host="localhost",
             user="root",
             password="Daniel98@",
-            database="clinica"
+            database="clinica_lolsito"
         )
-        # Crear una consulta SQL para seleccionar los valores de correo y contraseña desde la tabla de usuarios
-        sql = "INSERT INTO users (fullname, username, password) VALUES (%s, %s, %s);"
+        # Insertar usuario nuevo dentro de la tabla users
+        sql = "INSERT INTO users (fullname, email, password) VALUES (%s, %s, %s);"
         values = (fullname, email, password)
         
         # Ejecutar la consulta SQL y obtener los resultados
         cursor = db.cursor()
         cursor.execute(sql, values)
-        result = cursor.fetchone()
-        # Comparar los valores de correo y contraseña
-        if result and result[0] == email and result[1] == password:
-            # Credenciales válidas, redirigir al usuario a la página de inicio de sesión
-            print("Si encontre")
-            
-            error = 'Credenciales válidas. Bienvenido.'
-            return render_template('/login.html', error=error)
-            
-            #return redirect(url_for('inicio'))
+        
+        if cursor.rowcount > 0:
+            #Poner un trycatch
+            db.commit()  # confirmar los cambios en la base de datos
+            # Registro exitoso, mostrar mensaje de éxito al usuario
+            reg_success_msg = "Registro exitoso. ¡Ahora Inicia sesión!"
+            return render_template('registro.html', reg_success_msg=reg_success_msg)
         else:
-            # Credenciales no válidas, mostrar un mensaje de error
-            print("NO encontre")
-            
-            error = 'Credenciales no válidas. Intente de nuevo.'
-            return render_template('/login.html', error=error)
+            # Error al registrar usuario, mostrar mensaje de error al usuario
+            reg_error_msg = "No se pudo completar el registro. Intente de nuevo."
+            return render_template('registro.html', reg_error_msg=reg_error_msg)
     else:
-        return render_template('/login.html', error=error)
+        errorPOST = "Error POST"
+        return render_template('/login.html', error_msg=errorPOST)
 
 @app.route('/loginBD', methods=['GET', 'POST'])
 def loginBD():
@@ -87,33 +83,34 @@ def loginBD():
             host="localhost",
             user="root",
             password="Daniel98@",
-            database="clinica"
+            database="clinica_lolsito"
         )
         # Crear una consulta SQL para seleccionar los valores de correo y contraseña desde la tabla de usuarios
-        sql = "SELECT username, password FROM users WHERE username = %s AND password = %s"
+        sql = "SELECT email, password FROM users WHERE email = %s AND password = %s"
         values = (email, password)
         
         # Ejecutar la consulta SQL y obtener los resultados
         cursor = db.cursor()
         cursor.execute(sql, values)
         result = cursor.fetchone()
+
         # Comparar los valores de correo y contraseña
         if result and result[0] == email and result[1] == password:
             # Credenciales válidas, redirigir al usuario a la página de inicio de sesión
-            print("Si encontre")
-            
-            error = 'Credenciales válidas. Bienvenido.'
-            return render_template('/login.html', error=error)
-            
+
+            #login_success_msg = 'Credenciales válidas. Bienvenido.'
+            #return render_template('/login.html', login_success_msg=login_success_msg)
+
+            login_success_name = email
+            return render_template('/index.html', login_success_name=login_success_name)
             #return redirect(url_for('inicio'))
         else:
             # Credenciales no válidas, mostrar un mensaje de error
-            print("NO encontre")
-            
-            error = 'Credenciales no válidas. Intente de nuevo.'
-            return render_template('/login.html', error=error)
+            login_error_msg = 'Credenciales no válidas. Intente de nuevo.'
+            return render_template('/login.html', login_error_msg=login_error_msg)
     else:
-        return render_template('/login.html', error=error)
+        errorPOST = "Error POST"
+        return render_template('/login.html', error=errorPOST)
 
 if __name__ == "__main__":
     app.run(debug = True, port=4000, host="0.0.0.0")

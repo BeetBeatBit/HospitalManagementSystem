@@ -67,20 +67,19 @@
                 <form action="/loginBD" method="post">
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electronico</label>
-                        <input type="email" class="form-control" name="email" required>
+                        <input type="email" class="form-control" name="email" required maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
                     </div> 
                     <div class="mb-4">
                         <label for="contraseña" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="password" required>
+                        <input type="password" class="form-control" name="password" required maxlength="20" required>
                     </div>
 
                     
-                    {% if error %}
+                    {% if login_error_msg %}
                     <div class="alert alert-danger" role="alert">
-                    {{ error }}
+                    {{ login_error_msg }}
                     </div>
                     {% endif %}
-
 
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
