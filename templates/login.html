@@ -67,11 +67,11 @@
                 <form action="/loginBD" method="post">
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electronico</label>
-                        <input type="email" class="form-control" name="email" required maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
+                        <input type="email" class="form-control" name="email" required minlength="10" maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
                     </div> 
                     <div class="mb-4">
                         <label for="contraseña" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="password" required maxlength="20" required>
+                        <input type="password" class="form-control" name="password" minlength="2" required maxlength="20" required>
                     </div>
 
                     

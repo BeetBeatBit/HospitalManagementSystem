@@ -50,27 +50,38 @@ def registerBD():
             password="Daniel98@",
             database="clinica_lolsito"
         )
-        # Insertar usuario nuevo dentro de la tabla users
-        sql = "INSERT INTO users (fullname, email, password) VALUES (%s, %s, %s);"
-        values = (fullname, email, password)
-        
-        # Ejecutar la consulta SQL y obtener los resultados
+
+        # Validar si el correo electrónico del usuario ya existe en la base de datos
         cursor = db.cursor()
-        cursor.execute(sql, values)
-        
-        if cursor.rowcount > 0:
-            #Poner un trycatch
-            db.commit()  # confirmar los cambios en la base de datos
-            # Registro exitoso, mostrar mensaje de éxito al usuario
-            reg_success_msg = "Registro exitoso. ¡Ahora Inicia sesión!"
-            return render_template('registro.html', reg_success_msg=reg_success_msg)
-        else:
-            # Error al registrar usuario, mostrar mensaje de error al usuario
-            reg_error_msg = "No se pudo completar el registro. Intente de nuevo."
+        query = "SELECT email FROM users WHERE email=%s"
+        cursor.execute(query, (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            # El correo electrónico ya está registrado en la base de datos, mostrar mensaje de error al usuario
+            reg_error_msg = "El correo electrónico ya está registrado. Por favor, inicia sesión."
             return render_template('registro.html', reg_error_msg=reg_error_msg)
+        else:
+            # Insertar usuario nuevo dentro de la tabla users
+            sql = "INSERT INTO users (fullname, email, password) VALUES (%s, %s, %s);"
+            values = (fullname, email, password)
+
+            # Ejecutar la consulta SQL y obtener los resultados
+            cursor.execute(sql, values)
+
+            if cursor.rowcount > 0:
+                db.commit()  # confirmar los cambios en la base de datos
+                # Registro exitoso, mostrar mensaje de éxito al usuario
+                reg_success_msg = "Registro exitoso. ¡Ahora Inicia sesión!"
+                return render_template('registro.html', reg_success_msg=reg_success_msg)
+            else:
+                # Error al registrar usuario, mostrar mensaje de error al usuario
+                reg_error_msg = "No se pudo completar el registro. Intente de nuevo."
+                return render_template('registro.html', reg_error_msg=reg_error_msg)
     else:
         errorPOST = "Error POST"
         return render_template('/login.html', error_msg=errorPOST)
+
 
 @app.route('/loginBD', methods=['GET', 'POST'])
 def loginBD():

@@ -68,15 +68,15 @@
                     <!--Cambiar el type para uno mas adecuado que no sea email-->
                     <div class="mb-4">
                         <label for="name" class="form-label">Nombres</label>
-                        <input type="text" class="form-control" name="name" required pattern="^[a-zA-Z\s]*$" maxlength="40">
+                        <input type="text" class="form-control" name="name" required pattern="^[a-zA-Z\s]*$" minlength="5" maxlength="40">
                     </div> 
                     <div class="mb-4">
                         <label for="email" class="form-label">Correo electronico</label>
-                        <input type="email" class="form-control" name="email" required maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
+                        <input type="email" class="form-control" name="email" required minlength="10" maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
                     </div> 
                     <div class="mb-4">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="password" required maxlength="20">
+                        <input type="password" class="form-control" name="password" required minlength="2" maxlength="20">
                     </div>
 
                     
