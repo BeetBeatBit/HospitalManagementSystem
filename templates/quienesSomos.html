@@ -33,7 +33,23 @@
             <li class="nav-item px-3">
               <a class="nav-link active" href="/contactanos.html">Contactanos</a>
             </li>
-            <a class="btn btn-light" href="/login.html" role="button">Login</a>
+            
+            
+            {% if not session.get('logged_in') %}
+                <a class="btn btn-light" href="/login.html" role="button">Login</a>
+            {% else %}
+                <li class="nav-item px-3">
+                    <a class="nav-link active" href="#">Bienvenido {{session['user_email']}}</a>
+                </li>
+                <li class="nav-item px-3">
+                  <a href="{{url_for('home')}}" class="btn btn-dark btn-sm">Registro Pacientes</a>
+                </li>
+                <li class="nav-item px-3">
+                  <a href="{{url_for('logout')}}" class="btn btn-danger btn-sm">Cerrar Sesion</a>
+                </li>
+            {% endif %}
+
+            
           </ul>
         </div>
       </div>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re_Pacientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+    <!--Nav bar-->
+    <nav class="navbar navbar-expand-lg" style="background-color: #BCD0E3;">
+      <div class="container-fluid">
+        <a class="navbar-brand px-5" href="/index.html">Inicio</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item px-3">
+              <a class="nav-link active" aria-current="page" href="/especialidades.html">Especialidades</a>
+            </li>
+            <li class="nav-item px-3">
+              <a class="nav-link active" href="/servicios.html">Servicios</a>
+            </li>
+            <li class="nav-item px-3">
+              <a class="nav-link active" href="/quienesSomos.html">Quienes somos</a>
+            </li>
+            <li class="nav-item px-3">
+              <a class="nav-link active" href="/contactanos.html">Contactanos</a>
+            </li>
+            
+            
+            {% if not session.get('logged_in') %}
+                <a class="btn btn-light" href="/login.html" role="button">Login</a>
+            {% else %}
+                <li class="nav-item px-3">
+                    <a class="nav-link active" href="#">Bienvenido {{session['user_email']}}</a>
+                </li>
+                <li class="nav-item px-3">
+                  <a href="{{url_for('logout')}}" class="btn btn-danger btn-sm">Cerrar Sesion</a>
+                </li>
+            {% endif %}
+
+            
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <h1 class="text-center mt-5 mb-5 text-primary">Registro de Pacientes</h1>
+
+    <div class="container mb-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <form action="/user" method="POST">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label>Nombre Completo</label>
+                            <input type="text" class="form-control mb-3" name="username" required pattern="^[a-zA-Z\s]*$" minlength="5" maxlength="40">
+                        </div>
+                        <div class="col">
+                            <label>Correo</label>
+                            <input type="text" class="form-control mb-3" name="name" required minlength="10" maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
+                        </div>
+                        <div class="col">
+                            <label>Contraseña</label>
+                            <input type="text" class="form-control mb-3" name="password" required minlength="2" maxlength="20">
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+                <!-- Tabla -->
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Correo</th>
+                            <th scope="col">Contraseña</th>
+                            <th scope="col">Editar</th>
+                            <th scope="col">Borrar</th>
+                            <th scope="col">Generar PDF</th>
+                        </tr>
+                    </thead>
+                
+                <tbody>
+                    {% for d in data %}
+                        <tr>
+                            <td>{{d.id}}</td>
+                            <td>{{d.fullname}}</td>
+                            <td>{{d.email}}</td>
+                            <td>{{d.password}}</td>
+                            <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
+                            <td><a href="{{url_for('delete', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
+                            <td><a href="{{ url_for('generar_pdf', id=d.id) }}" class="btn btn-info btn-sm">PDF</a></td>
+                        </tr>
+
+                        <!-- modal -->
+
+                        <div class="modal fade" id="modal{{d.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Paciente #{{d.id}}</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/edit/{{d.id}}" method="post">
+                                        <label>Nombre</label>
+                                        <input type="text" class="form-control mb-3" name="username" value="{{d.fullname}}" required pattern="^[a-zA-Z\s]*$" minlength="5" maxlength="40">
+                                        <label>Correo</label>
+                                        <input type="text" class="form-control mb-3" name="name" value="{{d.email}}" required minlength="10" maxlength="40" pattern="[a-zA-Z0-9._%+-]+@unach\.mx$">
+                                        <label>Contraseña</label>
+                                        <input type="text" class="form-control mb-3" name="password" value="{{d.password}}" required minlength="2" maxlength="20">
+                                  
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="container-fluid">
+      <div class="row p-5 pb-2" style="background: linear-gradient(to right, #7D8A96, #9DADBD)">
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <p class="h3"><img src="/static/images/logo.png" width="60" alt=""> Clinica Lolsito</p>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <p class="h5 mb-3"> Servicio</p>
+            <div class="mb-2">
+              <a class="text-black-50 text-decoration-none" href="#">Quienes somos</a>
+            </div>
+            <div class="mb-2">
+              <a class="text-black-50 text-decoration-none"href="#">Especialidades</a>
+            </div>
+            <div class="mb-2">
+              <a class="text-black-50 text-decoration-none"href="#">Contactanos</a>
+            </div>
+            <div class="mb-2">
+              <a class="text-black-50 text-decoration-none"href="#">Terminos y condiciones</a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <p class="h5 mb-3"> Para los pacientes</p>
+            <div class="mb-2">
+              <a class="text-black-50 text-decoration-none"href="#">Directorio Médico</a>
+            </div>
+            <div class="mb-2">
+              <a class="text-black-50 text-decoration-none"href="#">Citas</a>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-3">
+            <p class="h5 mb-3 text-center"> Ubicación</p>
+            <div class="mb-2">
+              <p class="text-black-50 text-decoration-none">Av. Central Poniente Num# 51, Tuxtla Gutiérrez, Chiapas.</p>
+            </div>
+        </div>
+        <div class="col-xs-12 pt-4">
+          <p class="text-center">Copyright - Todos los derechos reservados ©2023 </p>
+        </div>
+      </div> 
+    </div>
+    
+</body>
+</html>
