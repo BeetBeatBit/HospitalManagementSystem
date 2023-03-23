@@ -85,8 +85,16 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Nombre</th>
+                            <th scope="col">Apellido Pat.</th>
+                            <th scope="col">Apellido Mat.</th>
+                            <th scope="col">Ciudad</th>
                             <th scope="col">Correo</th>
-                            <th scope="col">Contraseña</th>
+                            <th scope="col">Telefono</th>
+                            <th scope="col">Edad</th>
+                            <th scope="col">Tipo Sangre</th>
+                            <th scope="col">Peso</th>
+                            <th scope="col">Estatura</th>
+
                             <th scope="col">Editar</th>
                             <th scope="col">Borrar</th>
                             <th scope="col">Generar PDF</th>
@@ -98,8 +106,17 @@
                         <tr>
                             <td>{{d.id}}</td>
                             <td>{{d.fullname}}</td>
+                            <td>pat</td>
+                            <td>mat</td>
+                            <td>ciudad</td>
                             <td>{{d.email}}</td>
-                            <td>{{d.password}}</td>
+                            <td>telefono</td>
+                            <td>edad</td>
+                            <td>tipo de sangre</td>
+                            <td>peso</td>
+                            <td>estatura</td>
+                        
+                      
                             <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
                             <td><a href="{{url_for('delete', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
                             <td><a href="{{ url_for('generar_pdf', id=d.id) }}" class="btn btn-info btn-sm">PDF</a></td>
