@@ -137,7 +137,7 @@ def loginBD():
 @login_required
 def home():
     cursor = db.database.cursor()
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM pacientes")
     myresult = cursor.fetchall()
     #Convertir los datos a diccionario
     insertObject = []
@@ -149,14 +149,21 @@ def home():
     
 @app.route('/user', methods=['POST'])
 def addUser():
-    fullname = request.form['username']
-    email = request.form['name']
-    password = request.form['password']
+    nombre = request.form['nombre']
+    apellidoPat = request.form['apellidoPat']
+    apellidoMat = request.form['apellidoMat']
+    ciudad = request.form['ciudad']
+    correo = request.form['correo']
+    telefono = request.form['telefono']
+    edad = request.form['edad']
+    tipoSangre = request.form['tipoSangre']
+    peso = request.form['peso']
+    estatura = request.form['estatura']
 
-    if fullname and email and password:
+    if nombre and apellidoPat and apellidoMat and ciudad and correo and telefono and edad and tipoSangre and peso and estatura:
         cursor = db.database.cursor()
-        sql = "INSERT INTO users (fullname, email, password) VALUES (%s, %s, %s)"
-        data = (fullname, email, password)
+        sql = "INSERT INTO pacientes (nombre, apellidoPat, apellidoMat, ciudad, correo, telefono, edad, tipoSangre, peso, estatura) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        data = (nombre, apellidoPat, apellidoMat, ciudad, correo, telefono, edad, tipoSangre, peso, estatura)
         cursor.execute(sql, data)
         db.database.commit()
     return redirect(url_for('home'))
@@ -164,7 +171,7 @@ def addUser():
 @app.route('/delete/<string:id>')
 def delete(id):
     cursor = db.database.cursor()
-    sql = "DELETE FROM users WHERE id=%s"
+    sql = "DELETE FROM pacientes WHERE id=%s"
     data = (id,)
     cursor.execute(sql, data)
     db.database.commit()
@@ -172,14 +179,21 @@ def delete(id):
 
 @app.route('/edit/<string:id>', methods=['POST'])
 def edit(id):
-    fullname = request.form['username']
-    email = request.form['name']
-    password = request.form['password']
+    nombre = request.form['nombre']
+    apellidoPat = request.form['apellidoPat']
+    apellidoMat = request.form['apellidoMat']
+    ciudad = request.form['ciudad']
+    correo = request.form['correo']
+    telefono = request.form['telefono']
+    edad = request.form['edad']
+    tipoSangre = request.form['tipoSangre']
+    peso = request.form['peso']
+    estatura = request.form['estatura']
 
-    if fullname and email and password:
+    if nombre and apellidoPat and apellidoMat and ciudad and correo and telefono and edad and tipoSangre and peso and estatura:
         cursor = db.database.cursor()
-        sql = "UPDATE users SET fullname = %s, email = %s, password = %s WHERE id = %s"
-        data = (fullname, email, password, id)
+        sql = "UPDATE pacientes SET nombre = %s, apellidoPat = %s, apellidoMat = %s, ciudad = %s, correo = %s, telefono = %s, edad = %s, tipoSangre = %s, peso = %s, estatura = %s WHERE id = %s"
+        data = (nombre, apellidoPat, apellidoMat, ciudad, correo, telefono, edad, tipoSangre, peso, estatura, id)
         cursor.execute(sql, data)
         db.database.commit()
     return redirect(url_for('home'))
@@ -187,22 +201,40 @@ def edit(id):
 @app.route('/pdf/<string:id>')
 def generar_pdf(id):
     cursor = db.database.cursor()
-    sql = "SELECT * FROM users WHERE id=%s"
+    sql = "SELECT * FROM pacientes WHERE id=%s"
     data = (id,)
     cursor.execute(sql, data)
     paciente = cursor.fetchone()
     
     # Crear el PDF
-    nombre_pdf = f"{paciente[2]}.pdf"
+    nombre_pdf = f"ID_{paciente[0]}_{paciente[2]}_{paciente[3]}_{paciente[1]}.pdf"
     c = canvas.Canvas(nombre_pdf)
-    c.drawString(100, 750, f"ID: {paciente[0]}")
-    c.drawString(100, 700, f"Nombre: {paciente[1]}")
-    c.drawString(100, 650, f"Email: {paciente[2]}")
-    c.drawString(100, 600, f"Contraseña: {paciente[3]}")
 
-    c.drawString(260, 250, f"Clinica Lolsito")
-    c.drawImage("static/images/logo.png",220, 300, 150, 150)
+    # Encabezado con logo y nombre de la clínica
+    c.drawImage("static/images/logo.png", 40, 750, 50, 50)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(250, 770, "Clinica Lolsito")
+
+    # Información del paciente
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 700, f"ID: {paciente[0]}")
+    c.drawString(100, 680, f"Nombre: {paciente[1]}")
+    c.drawString(100, 660, f"Apellido Paterno: {paciente[2]}")
+    c.drawString(100, 640, f"Apellido Materno: {paciente[3]}")
+    c.drawString(100, 620, f"Ciudad: {paciente[4]}")
+    c.drawString(100, 600, f"Correo: {paciente[5]}")
+    c.drawString(100, 580, f"Telefono: {paciente[6]}")
+    c.drawString(100, 560, f"Edad: {paciente[7]}")
+    c.drawString(100, 540, f"Tipo de Sangre: {paciente[8]}")
+    c.drawString(100, 520, f"Peso: {paciente[9]}")
+    c.drawString(100, 500, f"Estatura: {paciente[10]}")
+
+    # Pie de página con dirección de la clínica
+    c.setFont("Helvetica", 10)
+    c.drawString(40, 50, "Av. Central Poniente Num# 51, Tuxtla Gutiérrez, Chiapas.")
+
     c.save()
+
     
     # Descargar el PDF
     path =  nombre_pdf
