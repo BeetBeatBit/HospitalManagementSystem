@@ -109,23 +109,46 @@
     </nav>
 
     <section class="home">
-        <h1 class="text-center mt-5 mb-5 text-primary">Registro de Especialidades</h1>
+        <h1 class="text-center mt-5 mb-5 text-primary">Registro de Citas</h1>
+
         <div class="container mb-5">
             <div class="card shadow">
                 <div class="card-body">
-                    <form action="/addEspecialidad" method="POST">
+                    <form action="/addCita" method="POST">
                         <div class="row mb-3">
 
                             <div class="col">
-                              <label>Nombre</label>
-                              <input type="text" class="form-control mb-3" name="nombre"  minlength="1" maxlength="50">
+                                <label>Paciente</label>
+                                <select class="form-select" name="id_Paciente">
+                                    {% for paciente in pacientes %}
+                                        <option value="{{ paciente.id }}">(ID {{ paciente.id }}) {{ paciente.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <label>Médico</label>
+                                <select class="form-select" name="id_Medico">
+                                    {% for medico in medicos %}
+                                        <option value="{{ medico.id }}">(ID {{ medico.id }}) {{ medico.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <label>Fecha</label>
+                                <input type="date" class="form-control mb-3" name="fecha">
+                            </div>
+
+                            <div class="col">
+                                <label>Hora</label>
+                                <input type="time" class="form-control mb-3" name="hora">
                             </div>
                             
                             <div class="col">
                                 <button class="btn btn-primary mb-3 mt-4" type="submit">Guardar</button>
                             </div>
                         </div>
-    
                     </form>
     
     
@@ -135,8 +158,11 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Nombre</th>
-                                
+                                <th scope="col">Paciente</th>
+                                <th scope="col">Médico</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Hora</th>
+    
                                 <th scope="col">Editar</th>
                                 <th scope="col">Borrar</th>
                                 <th scope="col">Generar PDF</th>
@@ -146,11 +172,14 @@
                     <tbody>
                         {% for d in data %}
                             <tr>
-                                <td>{{d.id}}</td>
-                                <td>{{d.nombre}}</td>
-                            
+                                <td>{{ d.id }}</td>
+                                <td>(ID {{ d.id_paciente }}) {{ d.paciente_nombre }}</td>
+                                <td>(ID {{ d.id_medico }}) {{ d.medico_nombre }}</td>
+                                <td>{{ d.fecha }}</td>
+                                <td>{{ d.hora }}</td>
+
                                 <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
-                                <td><a href="{{url_for('deleteEspecialidad', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
+                                <td><a href="{{url_for('deleteCita', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
                                 <td><a href="#" class="btn btn-info btn-sm">PDF</a></td>
                             </tr>
     
@@ -160,18 +189,26 @@
                                 <div class="modal-dialog">
                                   <div class="modal-content">
                                     <div class="modal-header">
-                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Especialidad #{{d.id}}</h1>
+                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Cita #{{d.id}}</h1>
                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="/editEspecialidad/{{d.id}}" method="post">
-                                            <label>Nombre</label>
-                                            <input type="text" class="form-control mb-3" name="nombre" value="{{d.nombre}}"  minlength="1" maxlength="50">
-                                          
+                                        <form action="/editCita/{{d.id}}" method="post">
+
+                                            <label style="display:block; margin-bottom: 10px;">PACIENTE: (ID {{ d.id_paciente }}) {{ d.paciente_nombre }}</label>
+                                            <label style="display:block; margin-bottom: 10px;">MÉDICO: (ID {{ d.id_medico }}) {{ d.medico_nombre }}</label>
+                                
+                                            <label>Fecha</label>
+                                            <input type="date" class="form-control mb-3" name="fecha" value="{{d.fecha}}">
+                                            <label>Hora</label>
+                                            <input type="time" class="form-control mb-3" name="hora" value="{{d.hora}}">
+                                        
                                     </div>
+
                                     <div class="modal-footer">
                                       <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                     </div>
+
                                     </form>
                                   </div>
                                 </div>

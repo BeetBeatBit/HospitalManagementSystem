@@ -3,7 +3,6 @@ from functools import wraps
 from reportlab.pdfgen import canvas
 import database as db
 
-
 app = Flask(__name__)
 app.secret_key = 'my_secret_key'
 
@@ -32,10 +31,6 @@ def index():
 @app.route("/index.html")
 def indexR():
     return render_template("index.html")
-
-@app.route("/especialidades.html")
-def espec():
-    return render_template("especialidades.html")
 
 @app.route("/servicios.html")
 def serv():
@@ -239,6 +234,196 @@ def generar_pdf(id):
     # Descargar el PDF
     path =  nombre_pdf
     return send_file(path, as_attachment=True)
+
+
+#Rutas del Registro de Citas
+@app.route('/citas.html')
+@login_required
+def homeCitas():
+    cursor = db.database.cursor()
+    cursor.execute("SELECT citas.*, pacientes.nombre as paciente_nombre, medicos.nombre as medico_nombre FROM citas INNER JOIN pacientes ON citas.id_paciente = pacientes.id INNER JOIN medicos ON citas.id_medico = medicos.id")
+    myresult = cursor.fetchall()
+    #Convertir los datos a diccionario
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in myresult:
+        cita_dict = dict(zip(columnNames, record))
+        cita_dict['paciente_nombre'] = record[columnNames.index('paciente_nombre')]
+        cita_dict['medico_nombre'] = record[columnNames.index('medico_nombre')]
+        insertObject.append(cita_dict)
+    
+
+    # Obtener la lista de pacientes y médicos con sus nombres
+    cursor = db.database.cursor()
+    cursor.execute("SELECT id, nombre FROM pacientes")
+    pacientes = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
+    cursor.execute("SELECT id, nombre FROM medicos")
+    medicos = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
+    cursor.close()
+
+    cursor.close()
+
+    # Pasar la lista de citas al contexto del template
+    return render_template('citas.html', data=insertObject , pacientes=pacientes, medicos=medicos)
+
+@app.route('/addCita', methods=['POST'])
+def addCita():
+    id_Paciente = request.form['id_Paciente']
+    id_Medico = request.form['id_Medico']
+    fecha = request.form['fecha']
+    hora = request.form['hora']
+    
+
+    if id_Paciente and id_Medico and fecha and hora:
+        cursor = db.database.cursor()
+        sql = "INSERT INTO citas (id_Paciente, id_Medico, fecha, hora) VALUES (%s, %s, %s, %s)"
+        data = (id_Paciente, id_Medico, fecha, hora)
+        cursor.execute(sql, data)
+        db.database.commit()
+    return redirect(url_for('homeCitas'))
+
+@app.route('/editCita/<string:id>', methods=['POST'])
+def editCita(id):
+    fecha = request.form['fecha']
+    hora = request.form['hora']
+    
+    if fecha and hora:
+        cursor = db.database.cursor()
+        sql = "UPDATE citas SET fecha = %s, hora = %s WHERE id = %s"
+        data = (fecha, hora, id)
+        cursor.execute(sql, data)
+        db.database.commit()
+    return redirect(url_for('homeCitas'))
+
+@app.route('/deleteCita/<string:id>')
+def deleteCita(id):
+    cursor = db.database.cursor()
+    sql = "DELETE FROM citas WHERE id=%s"
+    data = (id,)
+    cursor.execute(sql, data)
+    db.database.commit()
+    return redirect(url_for('homeCitas'))
+
+
+#Rutas del Registro de Especialidades
+@app.route('/especialidades.html')
+@login_required
+def homeEspecialidades():
+    cursor = db.database.cursor()
+    cursor.execute("SELECT * FROM especialidades")
+    myresult = cursor.fetchall()
+    #Convertir los datos a diccionario
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in myresult:
+        insertObject.append(dict(zip(columnNames, record)))
+    cursor.close()
+    return render_template('especialidades.html', data=insertObject)
+
+@app.route('/addEspecialidad', methods=['POST'])
+def addEspecialidad():
+    nombre = request.form['nombre']
+    
+    if nombre:
+        cursor = db.database.cursor()
+        sql = "INSERT INTO especialidades (nombre) VALUES (%s)"
+        data = (nombre,)
+        cursor.execute(sql, data)
+        db.database.commit()
+    return redirect(url_for('homeEspecialidades'))
+
+@app.route('/editEspecialidad/<string:id>', methods=['POST'])
+def editEspecialidad(id):
+    nombre = request.form['nombre']
+    
+    if nombre:
+        cursor = db.database.cursor()
+        sql = "UPDATE especialidades SET nombre = %s WHERE id = %s"
+        data = (nombre, id)
+        cursor.execute(sql, data)
+        db.database.commit()
+    return redirect(url_for('homeEspecialidades'))
+
+@app.route('/deleteEspecialidad/<string:id>')
+def deleteEspecialidad(id):
+    cursor = db.database.cursor()
+    sql = "DELETE FROM especialidades WHERE id=%s"
+    data = (id,)
+    cursor.execute(sql, data)
+    db.database.commit()
+    return redirect(url_for('homeEspecialidades'))
+
+
+#Rutas del Registro de Médicos
+@app.route('/medicos.html')
+@login_required
+def homeMedicos():
+    cursor = db.database.cursor()
+    cursor.execute("SELECT medicos.*, especialidades.nombre as especialidad_nombre FROM medicos INNER JOIN especialidades ON medicos.id_especialidad = especialidades.id")
+    myresult = cursor.fetchall()
+    #Convertir los datos a diccionario
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in myresult:
+        medico_dict = dict(zip(columnNames, record))
+        medico_dict['especialidad_nombre'] = record[columnNames.index('especialidad_nombre')]
+        insertObject.append(medico_dict)
+    
+
+    # Obtener la lista de pacientes y médicos con sus nombres
+    cursor.execute("SELECT id, nombre FROM especialidades")
+    especialidades = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
+    cursor.close()
+
+
+    # Pasar la lista de citas al contexto del template
+    return render_template('medicos.html', data=insertObject , especialidades=especialidades)
+
+@app.route('/addMedico', methods=['POST'])
+def addMedico():
+
+    id_especialidad = request.form['id_especialidad']
+    nombre = request.form['nombre']
+    telefono = request.form['telefono']
+    direccion = request.form['direccion']
+    correo = request.form['correo']
+    cedula = request.form['cedula']
+    
+    if id_especialidad and nombre and telefono and direccion and correo and cedula:
+        cursor = db.database.cursor()
+        sql = "INSERT INTO medicos (id_especialidad, nombre, telefono, direccion, correo, cedula) VALUES (%s, %s, %s, %s, %s, %s)"
+        data = (id_especialidad, nombre, telefono, direccion, correo, cedula)
+        cursor.execute(sql, data)
+        db.database.commit()
+
+    return redirect(url_for('homeMedicos'))
+
+@app.route('/editMedico/<string:id>', methods=['POST'])
+def editMedico(id):
+
+    nombre = request.form['nombre']
+    telefono = request.form['telefono']
+    direccion = request.form['direccion']
+    correo = request.form['correo']
+    cedula = request.form['cedula']
+    
+    if nombre and telefono and direccion and correo and cedula:
+        cursor = db.database.cursor()
+        sql = "UPDATE medicos SET nombre = %s, telefono = %s, direccion = %s, correo = %s, cedula = %s WHERE id = %s"
+        data = (nombre, telefono, direccion, correo, cedula, id)
+        cursor.execute(sql, data)
+        db.database.commit()
+    return redirect(url_for('homeMedicos'))
+
+@app.route('/deleteMedico/<string:id>')
+def deleteMedico(id):
+    cursor = db.database.cursor()
+    sql = "DELETE FROM medicos WHERE id=%s"
+    data = (id,)
+    cursor.execute(sql, data)
+    db.database.commit()
+    return redirect(url_for('homeMedicos'))
+
 
 if __name__ == "__main__":
     app.run(debug = True, port=4000, host="0.0.0.0")
