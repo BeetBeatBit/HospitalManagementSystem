@@ -150,7 +150,20 @@
                             </div>
                         </div>
                     </form>
-    
+                    
+
+                    <form action="/searchCitas" method="POST">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label>ID PACIENTE</label>
+                                <input type="number" class="form-control mb-3" min="0" name="nameSearch" required>
+                            </div>
+                            <div class="col">
+                                <button class="btn btn-primary mb-3 mt-4" type="submit">Buscar Cita</button>
+                            </div>
+                        </div>
+                    </form>
+                    
     
                     <!-- Tabla -->
     
@@ -180,7 +193,8 @@
 
                                 <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
                                 <td><a href="{{url_for('deleteCita', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
-                                <td><a href="#" class="btn btn-info btn-sm">PDF</a></td>
+                                <td><a href="{{ url_for('generar_pdfCita', id=d.id) }}" class="btn btn-info btn-sm">PDF</a></td>
+                                <td><a href="#" class="btn btn-info btn-sm">Email</a></td>
                             </tr>
     
                             <!-- modal -->

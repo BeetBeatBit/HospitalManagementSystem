@@ -266,6 +266,40 @@ def homeCitas():
     # Pasar la lista de citas al contexto del template
     return render_template('citas.html', data=insertObject , pacientes=pacientes, medicos=medicos)
 
+@app.route('/searchCitas', methods=['POST'])
+@login_required
+def homeCitasSearch():
+
+    id_PacienteSearch = request.form['nameSearch']
+
+    cursor = db.database.cursor()
+    sql = "SELECT citas.*, pacientes.nombre as paciente_nombre, medicos.nombre as medico_nombre FROM citas INNER JOIN pacientes ON citas.id_paciente = pacientes.id INNER JOIN medicos ON citas.id_medico = medicos.id WHERE citas.id_paciente = %s"
+    data = (id_PacienteSearch,)
+    cursor.execute(sql,data)
+    myresult = cursor.fetchall()
+    #Convertir los datos a diccionario
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in myresult:
+        cita_dict = dict(zip(columnNames, record))
+        cita_dict['paciente_nombre'] = record[columnNames.index('paciente_nombre')]
+        cita_dict['medico_nombre'] = record[columnNames.index('medico_nombre')]
+        insertObject.append(cita_dict)
+    
+
+    # Obtener la lista de pacientes y médicos con sus nombres
+    cursor = db.database.cursor()
+    cursor.execute("SELECT id, nombre FROM pacientes")
+    pacientes = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
+    cursor.execute("SELECT id, nombre FROM medicos")
+    medicos = [{'id': row[0], 'nombre': row[1]} for row in cursor.fetchall()]
+    cursor.close()
+
+    cursor.close()
+
+    # Pasar la lista de citas al contexto del template
+    return render_template('citas.html', data=insertObject , pacientes=pacientes, medicos=medicos)
+
 @app.route('/addCita', methods=['POST'])
 def addCita():
     id_Paciente = request.form['id_Paciente']
@@ -304,6 +338,50 @@ def deleteCita(id):
     db.database.commit()
     return redirect(url_for('homeCitas'))
 
+@app.route('/pdfCita/<string:id>')
+def generar_pdfCita(id):
+
+    #id_citaSearch = request.form['nameSearch']
+
+    cursor = db.database.cursor()
+    sql = "SELECT citas.*, pacientes.nombre as paciente_nombre, medicos.nombre as medico_nombre FROM citas INNER JOIN pacientes ON citas.id_paciente = pacientes.id INNER JOIN medicos ON citas.id_medico = medicos.id WHERE citas.id = %s"
+    data = (id,)
+
+    cursor.execute(sql, data)
+    cita = cursor.fetchone()
+
+    print(cita)
+    
+    # Crear el PDF
+    nombre_pdf = f"Cita-PACIENTE_{cita[5]}_.pdf"
+    c = canvas.Canvas(nombre_pdf)
+
+    # Encabezado con logo y nombre de la clínica
+    c.drawImage("static/images/logo.png", 40, 750, 50, 50)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(250, 770, "Clinica Lolsito")
+
+    # Información del paciente
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 700, f"ID: {cita[0]}")
+    c.drawString(100, 680, f"Paciente: {cita[5]} ID: {cita[1]}")
+    c.drawString(100, 660, f"Medico: {cita[6]} ID: {cita[2]}")
+    c.drawString(100, 640, f"FECHA: {cita[3]}")
+    c.drawString(100, 620, f"HORA: {cita[4]}")
+
+    c.drawString(100, 400, f"CITA MEDICA, ACUDA 15 min ANTES DE LA HORA DE CITA")
+    
+
+    # Pie de página con dirección de la clínica
+    c.setFont("Helvetica", 10)
+    c.drawString(40, 50, "Av. Central Poniente Num# 51, Tuxtla Gutiérrez, Chiapas.")
+
+    c.save()
+
+    
+    # Descargar el PDF
+    path =  nombre_pdf
+    return send_file(path, as_attachment=True)
 
 #Rutas del Registro de Especialidades
 @app.route('/especialidades.html')
