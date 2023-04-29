@@ -3,6 +3,11 @@ from functools import wraps
 from reportlab.pdfgen import canvas
 import database as db
 
+import os
+from email.message import EmailMessage
+import ssl
+import smtplib
+
 app = Flask(__name__)
 app.secret_key = 'my_secret_key'
 
@@ -350,7 +355,6 @@ def generar_pdfCita(id):
     cursor.execute(sql, data)
     cita = cursor.fetchone()
 
-    print(cita)
     
     # Crear el PDF
     nombre_pdf = f"Cita-PACIENTE_{cita[5]}_.pdf"
@@ -382,6 +386,42 @@ def generar_pdfCita(id):
     # Descargar el PDF
     path =  nombre_pdf
     return send_file(path, as_attachment=True)
+
+@app.route('/sendEmail/<string:id>')
+def email(id):
+    
+    #Obtiene los datos de la cita
+    cursor = db.database.cursor()
+    sql = "SELECT citas.*, pacientes.nombre as paciente_nombre, pacientes.correo as paciente_correo, medicos.nombre as medico_nombre FROM citas INNER JOIN pacientes ON citas.id_paciente = pacientes.id INNER JOIN medicos ON citas.id_medico = medicos.id WHERE citas.id = %s"
+    data = (id,)
+    cursor.execute(sql, data)
+    cita = cursor.fetchone()
+
+    email_sender = 'clinica.lolsito@gmail.com'
+    email_password = 'roqjmysztulyuiqf'
+    email_receiver = cita[6]
+
+    subject = 'Confirmación de cita: Clinica Lolsito'
+    body = """
+    Hola %s te confirmamos tu cita para el dia %s y la hora %s
+    con el doctor %s por favor llega 15 min antes.
+    """
+    mensaje_confirmacion = body % (cita[5], cita[3], cita[4], cita[7])
+    
+    
+    em = EmailMessage()
+    em['From'] = email_sender
+    em['To'] = email_receiver
+    em['Subject'] = subject
+    em.set_content(mensaje_confirmacion)
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_sender,email_password)
+        smtp.sendmail(email_sender,email_receiver,em.as_string())
+    
+    return redirect(url_for('homeCitas'))
 
 #Rutas del Registro de Especialidades
 @app.route('/especialidades.html')
@@ -501,7 +541,6 @@ def deleteMedico(id):
     cursor.execute(sql, data)
     db.database.commit()
     return redirect(url_for('homeMedicos'))
-
 
 if __name__ == "__main__":
     app.run(debug = True, port=4000, host="0.0.0.0")

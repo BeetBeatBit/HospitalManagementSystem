@@ -178,7 +178,8 @@
     
                                 <th scope="col">Editar</th>
                                 <th scope="col">Borrar</th>
-                                <th scope="col">Generar PDF</th>
+                                <th scope="col">PDF</th>
+                                <th scope="col">Enviar Email</th>
                             </tr>
                         </thead>
                     
@@ -194,7 +195,7 @@
                                 <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
                                 <td><a href="{{url_for('deleteCita', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
                                 <td><a href="{{ url_for('generar_pdfCita', id=d.id) }}" class="btn btn-info btn-sm">PDF</a></td>
-                                <td><a href="#" class="btn btn-info btn-sm">Email</a></td>
+                                <td><a href="{{ url_for('email', id=d.id) }}" class="btn btn-info btn-sm">Email</a></td>
                             </tr>
     
                             <!-- modal -->
