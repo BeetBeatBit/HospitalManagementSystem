@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, url_for, request, session, send_file
+from flask import Flask, render_template, redirect, url_for, request, session, send_file, make_response
 from functools import wraps
 from reportlab.pdfgen import canvas
 import database as db
+from io import BytesIO
 
 import os
 from email.message import EmailMessage
@@ -206,12 +207,12 @@ def generar_pdf(id):
     cursor.execute(sql, data)
     paciente = cursor.fetchone()
     
-    # Crear el PDF
-    nombre_pdf = f"ID_{paciente[0]}_{paciente[2]}_{paciente[3]}_{paciente[1]}.pdf"
-    c = canvas.Canvas(nombre_pdf)
+    # Crear el PDF en memoria
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer)
 
     # Encabezado con logo y nombre de la clínica
-    c.drawImage("static/images/logo.png", 40, 750, 50, 50)
+    #c.drawImage("static/images/logo.png", 40, 750, 50, 50)
     c.setFont("Helvetica-Bold", 16)
     c.drawString(250, 770, "Clinica Lolsito")
 
@@ -236,9 +237,18 @@ def generar_pdf(id):
     c.save()
 
     
-    # Descargar el PDF
-    path =  nombre_pdf
-    return send_file(path, as_attachment=True)
+    # Obtener los bytes del PDF
+    pdf_bytes = buffer.getvalue()
+
+    # Crear una respuesta HTTP para devolver el PDF
+    response = make_response(pdf_bytes)
+
+    # Establecer las cabeceras para indicar que se está devolviendo un archivo PDF
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=ID_{paciente[0]}_{paciente[2]}_{paciente[3]}_{paciente[1]}.pdf'
+
+    # Devolver la respuesta HTTP con el PDF
+    return response
 
 
 #Rutas del Registro de Citas
@@ -356,12 +366,12 @@ def generar_pdfCita(id):
     cita = cursor.fetchone()
 
     
-    # Crear el PDF
-    nombre_pdf = f"Cita-PACIENTE_{cita[5]}_.pdf"
-    c = canvas.Canvas(nombre_pdf)
+    # Crear el PDF en memoria
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer)
 
     # Encabezado con logo y nombre de la clínica
-    c.drawImage("static/images/logo.png", 40, 750, 50, 50)
+    #c.drawImage("static/images/logo.png", 40, 750, 50, 50)
     c.setFont("Helvetica-Bold", 16)
     c.drawString(250, 770, "Clinica Lolsito")
 
@@ -382,10 +392,20 @@ def generar_pdfCita(id):
 
     c.save()
 
+    # Obtener los bytes del PDF
+    pdf_bytes = buffer.getvalue()
+
+    # Crear una respuesta HTTP para devolver el PDF
+    response = make_response(pdf_bytes)
+
+    # Establecer las cabeceras para indicar que se está devolviendo un archivo PDF
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=Cita-PACIENTE_{cita[5]}_.pdf'
+
+    # Devolver la respuesta HTTP con el PDF
+    return response
+
     
-    # Descargar el PDF
-    path =  nombre_pdf
-    return send_file(path, as_attachment=True)
 
 @app.route('/sendEmail/<string:id>')
 def email(id):
